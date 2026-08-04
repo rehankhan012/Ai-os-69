@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
 
+export async function GET() {
+  return NextResponse.json({ status: "ok" });
+}
+
 export async function POST(req: NextRequest) {
   try {
     // 1. Verify Authentication
@@ -51,7 +55,7 @@ export async function POST(req: NextRequest) {
         category_name = EXCLUDED.category_name;
     `;
 
-    return NextResponse.json({ status: "success", message: "Article saved to Neon" });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("Webhook error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
