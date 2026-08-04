@@ -3,7 +3,7 @@
  * Communicates with the FastAPI backend.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://ai-os-69.onrender.com/api/v1" : "http://localhost:8000/api/v1");
 
 type RequestOptions = {
   method?: string;
