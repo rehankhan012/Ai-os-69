@@ -36,8 +36,7 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "http://localhost:3001",
         "http://localhost:5173",
-        "https://darkverse.co.in",
-        "https://www.darkverse.co.in",
+        "https://darkverseblog.vercel.app",
         "https://darkverse-rehans-projects-47f74bf3.vercel.app",
         "https://*.vercel.app",
     ]
@@ -62,16 +61,16 @@ class Settings(BaseSettings):
     pinterest_scopes: str = "boards:read,boards:write,pins:read,pins:write,user_accounts:read"
 
     # Website publishing (pluggable — set SITE_PUBLISH_TYPE=wordpress and
-    # provide a URL + token to push articles to an external site, e.g. darkverse.co.in)
+    # provide a URL + token to push articles to an external site, e.g. darkverseblog.vercel.app)
     site_publish_url: str = ""
     site_publish_token: str = ""
     site_publish_type: str = ""  # "wordpress" | "generic" | "" (local-only)
 
-    # Public website (darkverse.co.in) branding + deployment URL
+    # Public website (darkverseblog.vercel.app) branding + deployment URL
     site_name: str = "Darkverse"
     site_tagline: str = "Ideas, stories, and deep dives"
     site_description: str = "Darkverse is a publication about ideas, technology, and the stories shaping the world."
-    site_url: str = "http://localhost:3001"  # public site origin (prod: https://darkverse.co.in)
+    site_url: str = "http://localhost:3001"  # public site origin (prod: https://darkverseblog.vercel.app)
 
     model_config = {"env_file": ".env", "case_sensitive": False}
 

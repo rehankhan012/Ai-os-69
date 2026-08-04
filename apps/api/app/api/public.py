@@ -1,5 +1,5 @@
 """
-Public website API — powers the public blog at darkverse.co.in.
+Public website API — powers the public blog at darkverseblog.vercel.app.
 
 Read-only, NO authentication. Only exposes PUBLISHED articles (never drafts,
 review, or archived). The public site never touches agents, bots, analytics,

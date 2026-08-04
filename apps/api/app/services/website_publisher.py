@@ -4,12 +4,12 @@ Website publisher — pushes articles to an external site.
 Pluggable by design:
 - SITE_PUBLISH_TYPE=wordpress  -> WordPress REST API (wp-json) create/post
 - SITE_PUBLISH_TYPE=generic    -> generic POST to SITE_PUBLISH_URL with a JSON payload
-- unset                         -> built-in mode: the public blog site (darkverse.co.in)
+- unset                         -> built-in mode: the public blog site (darkverseblog.vercel.app)
                                    is powered by this CMS, so published articles appear
                                    there automatically. No external push needed.
 
 Configure via env (apps/api/.env):
-    SITE_PUBLISH_URL=https://darkverse.co.in/wp-json/wp/v2
+    SITE_PUBLISH_URL=https://darkverseblog.vercel.app/wp-json/wp/v2
     SITE_PUBLISH_TOKEN=<application password or bearer token>
     SITE_PUBLISH_TYPE=wordpress
 """

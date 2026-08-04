@@ -182,7 +182,7 @@ export default function PublishPanel({ articleId }: { articleId: string }) {
 
       {report && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-          <StepRow icon={<Globe className="w-4 h-4" />} label="Website (darkverse.co.in)" step={report.website} />
+          <StepRow icon={<Globe className="w-4 h-4" />} label="Website (darkverseblog.vercel.app)" step={report.website} />
           <StepRow icon={<Pin className="w-4 h-4" />} label="Pinterest pin" step={report.pinterest} />
           <StepRow icon={<CheckCircle2 className="w-4 h-4" />} label="CMS" step={report.cms} />
         </motion.div>
