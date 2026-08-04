@@ -9,27 +9,28 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Server Configuration Check
+    if (!process.env.DATABASE_URL || !process.env.SITE_PUBLISH_TOKEN) {
+      console.error("CRITICAL: DATABASE_URL or SITE_PUBLISH_TOKEN missing in Vercel Environment Variables");
+      return NextResponse.json({ error: "Server configuration missing" }, { status: 500 });
+    }
+
     // 1. Verify Authentication
     const authHeader = req.headers.get("authorization");
     const token = process.env.SITE_PUBLISH_TOKEN;
     
-    if (token && authHeader !== `Bearer ${token}`) {
+    if (authHeader !== `Bearer ${token}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // 2. Parse payload
     const data = await req.json();
     
-    if (!data.slug || !data.title) {
-      return NextResponse.json({ error: "Missing required fields (slug, title)" }, { status: 400 });
+    if (!data.slug || !data.title || !data.id) {
+      return NextResponse.json({ error: "Missing required fields (id, slug, title)" }, { status: 400 });
     }
 
     // 3. Connect to Neon
-    if (!process.env.DATABASE_URL) {
-      console.error("DATABASE_URL is not set");
-      return NextResponse.json({ error: "Server database configuration missing" }, { status: 500 });
-    }
-    
     const sql = neon(process.env.DATABASE_URL);
 
     // 4. Upsert Article into Neon Postgres
