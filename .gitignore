@@ -1,0 +1,23 @@
+# Pinterest AI Content Engine
+
+node_modules/
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+dist/
+build/
+.next/
+*.db
+uploads/
+__pycache__/
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.DS_Store
+.python-version
+.venv/
+.vercel
+.env*

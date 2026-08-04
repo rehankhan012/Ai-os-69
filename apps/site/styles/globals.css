@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 5.9%;
+    --card-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 346 77% 55%;
+    --accent-foreground: 0 0% 100%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 346 77% 55%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  ::selection {
+    @apply bg-accent/40 text-white;
+  }
+
+  /* Slim custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 9999px;
+    border: 2px solid hsl(var(--background));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+@layer components {
+  .prose-dark [id] {
+    scroll-margin-top: 6rem;
+  }
+
+  .prose-dark h1,
+  .prose-dark h2,
+  .prose-dark h3,
+  .prose-dark h4 {
+    @apply font-serif font-bold text-foreground mt-8 mb-3 leading-snug;
+  }
+  .prose-dark h1 { @apply text-3xl; }
+  .prose-dark h2 { @apply text-2xl; }
+  .prose-dark h3 { @apply text-xl; }
+  .prose-dark h4 { @apply text-lg; }
+  .prose-dark p {
+    @apply text-[17px] leading-[1.85] text-foreground/85 my-4;
+  }
+  .prose-dark ul {
+    @apply list-disc pl-6 my-4 space-y-2 text-[17px] leading-relaxed text-foreground/85;
+  }
+  .prose-dark ol {
+    @apply list-decimal pl-6 my-4 space-y-2 text-[17px] leading-relaxed text-foreground/85;
+  }
+  .prose-dark li { @apply my-1; }
+  .prose-dark blockquote {
+    @apply border-l-2 border-accent/60 pl-4 my-5 italic text-foreground/75;
+  }
+  .prose-dark a {
+    @apply text-accent underline underline-offset-4 decoration-accent/40 hover:decoration-accent transition;
+  }
+  .prose-dark strong { @apply text-foreground font-semibold; }
+  .prose-dark code {
+    @apply bg-muted px-1.5 py-0.5 rounded text-sm text-accent;
+  }
+  .prose-dark pre {
+    @apply bg-card border border-border rounded-xl p-4 overflow-x-auto my-5 text-sm;
+  }
+  .prose-dark pre code { @apply bg-transparent p-0 text-foreground/90; }
+  .prose-dark img {
+    @apply rounded-xl my-6 max-w-full h-auto;
+  }
+  .prose-dark hr {
+    @apply my-8 border-border;
+  }
+}

@@ -1,0 +1,11 @@
+node_modules
+.next
+.venv
+__pycache__
+*.db
+uploads
+*.log
+.DS_Store
+apps/dashboard/.next
+apps/site/.next
+apps/api/.venv

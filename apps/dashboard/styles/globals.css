@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@font-face {
+  font-family: 'Cal Sans';
+  src: url('https://cal.com/cal-sans/CalSans-SemiBold.woff2') format('woff2');
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 96%;
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 96%;
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 346 77% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 217 33% 12%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 217 33% 14%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 346 77% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 217 33% 14%;
+    --input: 217 33% 14%;
+    --ring: 346 77% 50%;
+    --radius: 1rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-glass backdrop-blur-xl border border-glass-border;
+  }
+
+  .glass-card {
+    @apply bg-card/50 backdrop-blur-xl border border-glass-border rounded-2xl shadow-lg;
+  }
+
+  .glass-card-hover {
+    @apply glass-card transition-all duration-300 hover:bg-card/70 hover:border-glass-border hover:shadow-xl;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-red-500 via-purple-500 to-blue-500;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-red-500 to-purple-600;
+  }
+
+  .gradient-card {
+    @apply bg-gradient-to-br from-red-500/10 via-purple-500/5 to-blue-500/10;
+  }
+
+  .skeleton {
+    @apply bg-gradient-to-r from-muted via-muted/50 to-muted bg-[length:200%_100%] animate-shimmer rounded-lg;
+  }
+
+  .stats-card {
+    @apply glass-card p-6 space-y-2;
+  }
+
+  .stats-value {
+    @apply text-3xl font-bold tracking-tight;
+  }
+
+  .stats-label {
+    @apply text-sm text-muted-foreground font-medium;
+  }
+
+  .agent-badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+
+  .agent-card {
+    @apply glass-card p-5 border-l-4 transition-all duration-300 hover:shadow-xl;
+  }
+
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  .section-title {
+    @apply text-2xl font-display font-semibold tracking-tight;
+  }
+
+  .section-subtitle {
+    @apply text-sm text-muted-foreground;
+  }
+
+  .workflow-step {
+    @apply flex items-center gap-4 p-4 rounded-xl border border-glass-border bg-glass transition-all duration-200 hover:bg-glass-hover;
+  }
+
+  .metric-tile {
+    @apply p-4 rounded-xl bg-glass border border-glass-border space-y-1;
+  }
+
+  .agent-status-dot {
+    @apply w-2 h-2 rounded-full;
+  }
+
+  /* Injected renderer SVGs scale to fill their preview container */
+  .pin-preview svg {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
