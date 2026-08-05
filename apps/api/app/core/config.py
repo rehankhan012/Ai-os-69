@@ -41,9 +41,6 @@ class Settings(BaseSettings):
         "https://*.vercel.app",
     ]
 
-    # AI API Keys
-    anthropic_api_key: str = ""
-
     # Storage
     storage_backend: str = "local"
     storage_local_path: str = "./uploads"
