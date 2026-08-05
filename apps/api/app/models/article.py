@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Integer, Boolean, Float
+from sqlalchemy import Column, String, DateTime, Text, ForeignKey, Integer, Boolean, Float, JSON
 from app.core.db_types import Uuid as UUID
 
 from app.core.database import Base
@@ -21,6 +21,7 @@ class Article(Base):
     status = Column(String(50), default="draft")  # draft, review, approved, published, archived
     seo_score = Column(Float, default=0.0)
     ai_generated = Column(Boolean, default=False)
+    ai_metadata = Column(JSON, nullable=True)
     ai_job_id = Column(UUID(as_uuid=True), ForeignKey("ai_jobs.id", ondelete="SET NULL"), nullable=True)
     published_at = Column(DateTime(timezone=True), nullable=True)
     view_count = Column(Integer, default=0)

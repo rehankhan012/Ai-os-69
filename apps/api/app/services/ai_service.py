@@ -7,7 +7,9 @@ Supports OpenAI GPT, Claude, Gemini with a uniform interface.
 from abc import ABC, abstractmethod
 from typing import Any
 
+import json
 from app.core.config import settings
+from app.prompts.prompt_loader import PromptLoader
 
 
 class AIProvider(ABC):
@@ -25,6 +27,50 @@ class AIProvider(ABC):
     async def generate_description(self, title: str, keyword: str, tone: str) -> str:
         ...
 
+    async def generate_article(self, topic: str, affiliate_links: list[str], internal_links: list[dict], trusted_sources: list[str], additional_instructions: str, tone: str) -> dict:
+        """Generate a fully formatted SEO article with affiliate links and structured metadata."""
+        prompt = PromptLoader.build_article_prompt(
+            topic=topic,
+            tone=tone,
+            affiliate_links=affiliate_links,
+            internal_links=internal_links,
+            trusted_sources=trusted_sources,
+            additional_instructions=additional_instructions
+        )
+
+        response_text = await self.generate_text(prompt)
+        
+        # Parse JSON
+        response_text = response_text.strip()
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+            
+        response_text = response_text.strip()
+        
+        try:
+            return json.loads(response_text)
+        except json.JSONDecodeError as e:
+            # Fallback structure if parsing fails
+            return {
+                "title": topic,
+                "slug": topic.lower().replace(" ", "-"),
+                "excerpt": "",
+                "meta_title": topic,
+                "meta_description": "",
+                "focus_keyword": topic,
+                "tags": [],
+                "reading_time": 5,
+                "word_count": 0,
+                "html": response_text,  # Dump the raw output here
+                "faq": [],
+                "affiliate_links_used": [],
+                "internal_links_used": []
+            }
+
 
 class OpenAIProvider(AIProvider):
     """OpenAI GPT integration."""
@@ -35,9 +81,10 @@ class OpenAIProvider(AIProvider):
 
     async def generate_text(self, prompt: str, **kwargs: Any) -> str:
         response = await self.client.chat.completions.create(
-            model=kwargs.get("model", "gpt-4o"),
+            model=kwargs.get("model", "gpt-4o-mini"),
             messages=[{"role": "user", "content": prompt}],
             temperature=kwargs.get("temperature", 0.7),
+            response_format={"type": "json_object"} if "json" in prompt.lower() else None
         )
         return response.choices[0].message.content or ""
 

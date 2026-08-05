@@ -30,6 +30,10 @@ type StageState = Record<string, "idle" | "running" | "done">;
 
 export default function ContentPipelinePage() {
   const [topic, setTopic] = useState("");
+  const [affiliateLinks, setAffiliateLinks] = useState<string[]>([]);
+  const [internalLinks, setInternalLinks] = useState<{title: string, url: string}[]>([]);
+  const [trustedSources, setTrustedSources] = useState<string[]>([]);
+  const [additionalInstructions, setAdditionalInstructions] = useState("");
   const [running, setRunning] = useState(false);
   const [stages, setStages] = useState<StageState>({});
   const [result, setResult] = useState<DemoWorkflowResponse | null>(null);
@@ -42,10 +46,19 @@ export default function ContentPipelinePage() {
     if (!topic.trim() || savingDraft) return;
     setSavingDraft(true);
     try {
+      // Validate URLs and filter empty/duplicates
+      const validAffiliate = Array.from(new Set(affiliateLinks.filter(l => l.trim() !== "" && l.startsWith("https://"))));
+      const validInternal = internalLinks.filter(l => l.title.trim() !== "" && l.url.trim() !== "" && l.url.startsWith("https://"));
+      const validTrusted = Array.from(new Set(trustedSources.filter(l => l.trim() !== "" && l.startsWith("https://"))));
+
       const gen = await api.post<{ article_id: string }>("/workflow/generate", {
         topic: topic.trim(),
         niche: "",
         tone: "professional",
+        affiliate_links: validAffiliate,
+        internal_links: validInternal,
+        trusted_sources: validTrusted,
+        additional_instructions: additionalInstructions.trim(),
       });
       setPublishArticleId(gen.article_id);
       toast.success("Saved as a CMS draft — ready to publish");
@@ -164,6 +177,123 @@ export default function ContentPipelinePage() {
                 <Button size="lg" className="gap-2 px-8" onClick={runPipeline} disabled={!topic.trim() || running}>
                   {running ? <><Loader2 className="w-4 h-4 animate-spin" /> Running Pipeline...</> : <><Sparkles className="w-4 h-4" />Run Pipeline</>}
                 </Button>
+              </div>
+
+              {/* Affiliate Links Section */}
+              <div className="mt-4 space-y-3 border-t border-glass-border pt-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium block text-muted-foreground">Affiliate Links (Optional)</label>
+                  <Button variant="outline" size="sm" onClick={() => setAffiliateLinks([...affiliateLinks, ""])} className="text-xs h-8">
+                    Add Link
+                  </Button>
+                </div>
+                {affiliateLinks.map((link, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="https://example.com/product"
+                      value={link}
+                      type="url"
+                      onChange={(e) => {
+                        const newLinks = [...affiliateLinks];
+                        newLinks[index] = e.target.value;
+                        setAffiliateLinks(newLinks);
+                      }}
+                      className="flex-1 text-sm h-9"
+                    />
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-300 hover:bg-red-400/10" onClick={() => {
+                      const newLinks = [...affiliateLinks];
+                      newLinks.splice(index, 1);
+                      setAffiliateLinks(newLinks);
+                    }}>
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Internal Links Section */}
+              <div className="mt-4 space-y-3 border-t border-glass-border pt-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium block text-muted-foreground">Internal Links (Optional)</label>
+                  <Button variant="outline" size="sm" onClick={() => setInternalLinks([...internalLinks, {title: "", url: ""}])} className="text-xs h-8">
+                    Add Link
+                  </Button>
+                </div>
+                {internalLinks.map((link, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="Page Title"
+                      value={link.title}
+                      onChange={(e) => {
+                        const newLinks = [...internalLinks];
+                        newLinks[index].title = e.target.value;
+                        setInternalLinks(newLinks);
+                      }}
+                      className="flex-1 text-sm h-9"
+                    />
+                    <Input
+                      placeholder="https://yourdomain.com/page"
+                      value={link.url}
+                      type="url"
+                      onChange={(e) => {
+                        const newLinks = [...internalLinks];
+                        newLinks[index].url = e.target.value;
+                        setInternalLinks(newLinks);
+                      }}
+                      className="flex-1 text-sm h-9"
+                    />
+                    <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0 text-red-400 hover:text-red-300 hover:bg-red-400/10" onClick={() => {
+                      const newLinks = [...internalLinks];
+                      newLinks.splice(index, 1);
+                      setInternalLinks(newLinks);
+                    }}>
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Trusted Sources Section */}
+              <div className="mt-4 space-y-3 border-t border-glass-border pt-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium block text-muted-foreground">Trusted Sources (Optional)</label>
+                  <Button variant="outline" size="sm" onClick={() => setTrustedSources([...trustedSources, ""])} className="text-xs h-8">
+                    Add Source
+                  </Button>
+                </div>
+                {trustedSources.map((source, index) => (
+                  <div key={index} className="flex gap-2">
+                    <Input
+                      placeholder="https://wikipedia.org/..."
+                      value={source}
+                      type="url"
+                      onChange={(e) => {
+                        const newSources = [...trustedSources];
+                        newSources[index] = e.target.value;
+                        setTrustedSources(newSources);
+                      }}
+                      className="flex-1 text-sm h-9"
+                    />
+                    <Button variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:text-red-300 hover:bg-red-400/10" onClick={() => {
+                      const newSources = [...trustedSources];
+                      newSources.splice(index, 1);
+                      setTrustedSources(newSources);
+                    }}>
+                      <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Additional Instructions Section */}
+              <div className="mt-4 space-y-3 border-t border-glass-border pt-4">
+                <label className="text-sm font-medium block text-muted-foreground">Additional Instructions (Optional)</label>
+                <textarea
+                  placeholder="E.g., Make sure to mention our summer sale, target beginners, avoid mentioning competitors..."
+                  value={additionalInstructions}
+                  onChange={(e) => setAdditionalInstructions(e.target.value)}
+                  className="flex min-h-[80px] w-full rounded-md border border-glass-border bg-black/20 px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                />
               </div>
             </div>
           </div>

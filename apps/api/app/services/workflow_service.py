@@ -35,6 +35,7 @@ from app.models.job import AIJob
 from app.models.notification import Notification
 from app.models.log import Log
 from app.utils import unique_slugify
+from app.services.ai_service import get_ai_provider
 
 
 class WorkflowService:
@@ -43,8 +44,18 @@ class WorkflowService:
     async def run_full_workflow(self, db: AsyncSession, user_id: str,
                                  topic: str, niche: str = "", audience: str = "",
                                  tone: str = "professional",
-                                 brand_color: str = "#2563EB") -> dict:
+                                 brand_color: str = "#2563EB",
+                                 affiliate_links: list[str] = None,
+                                 internal_links: list[dict] = None,
+                                 trusted_sources: list[str] = None,
+                                 additional_instructions: str = "") -> dict:
         """Run the complete pipeline from topic to CMS draft + queue items."""
+        if affiliate_links is None:
+            affiliate_links = []
+        if internal_links is None:
+            internal_links = []
+        if trusted_sources is None:
+            trusted_sources = []
         job = self._create_job(db, user_id, "full_workflow", topic, niche)
         await db.flush()
 
@@ -87,17 +98,34 @@ class WorkflowService:
 
             # Stage 6: Save article draft to CMS
             user_uuid = self._coerce_uuid(user_id)
-            head_title = titles[0].get("title", topic) if titles else topic
+
+            ai_provider = get_ai_provider()
+            generated_data = await ai_provider.generate_article(
+                topic=topic,
+                affiliate_links=affiliate_links,
+                internal_links=internal_links,
+                trusted_sources=trusted_sources,
+                additional_instructions=additional_instructions,
+                tone=tone,
+            )
+            
+            head_title = generated_data.get("title", topic)
+            slug = generated_data.get("slug", unique_slugify(head_title, set()))
+            html_content = generated_data.get("html", "")
+            excerpt = generated_data.get("excerpt", descriptions[0] if descriptions else "")
+
             article = Article(
                 user_id=user_uuid,
                 title=head_title,
-                slug=unique_slugify(head_title, set()),
-                content=self._build_article_body(topic, titles, descriptions, hashtags, keywords),
-                excerpt=descriptions[0] if descriptions else "",
+                slug=slug,
+                content=html_content,
+                excerpt=excerpt,
                 status="draft",
                 seo_score=quality_score,
                 ai_generated=True,
+                ai_metadata=generated_data,
                 ai_job_id=job.id,
+                category_id=None,
             )
             db.add(article)
             await db.flush()

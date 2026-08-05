@@ -29,12 +29,20 @@ workflow_service = WorkflowService()
 pipeline_service = PublishingPipelineService()
 
 
+class InternalLinkRequest(BaseModel):
+    title: str
+    url: str
+
 class GenerateRequest(BaseModel):
     topic: str
     niche: str = ""
     audience: str = ""
     tone: str = "professional"
     brand_color: str = "#2563EB"
+    affiliate_links: list[str] = []
+    internal_links: list[InternalLinkRequest] = []
+    trusted_sources: list[str] = []
+    additional_instructions: str = ""
 
 
 @router.post("/generate")
@@ -56,6 +64,10 @@ async def generate_content(
         audience=body.audience,
         tone=body.tone,
         brand_color=body.brand_color,
+        affiliate_links=body.affiliate_links,
+        internal_links=[{"title": link.title, "url": link.url} for link in body.internal_links],
+        trusted_sources=body.trusted_sources,
+        additional_instructions=body.additional_instructions,
     )
     if not result.get("success"):
         raise HTTPException(status_code=500, detail=result.get("error", "Workflow failed"))
