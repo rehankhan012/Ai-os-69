@@ -225,7 +225,6 @@ export default function SettingsPage() {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { name: "GPT-4o", provider: "OpenAI", desc: "Best for general content & SEO" },
               { name: "Claude 3.5", provider: "Anthropic", desc: "Best for creative writing & strategy" },
               { name: "Gemini Pro", provider: "Google", desc: "Best for research & analytics" },
             ].map((model, i) => (

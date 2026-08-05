@@ -1,7 +1,7 @@
 """
 AI Provider Abstraction Layer.
 
-Supports OpenAI GPT, Claude, Gemini with a uniform interface.
+Supports Claude, Gemini with a uniform interface.
 """
 
 from abc import ABC, abstractmethod
@@ -41,34 +41,6 @@ class AIProvider(ABC):
             additional_instructions=additional_instructions
         )
 
-
-class OpenAIProvider(AIProvider):
-    """OpenAI GPT integration."""
-
-    def __init__(self):
-        import openai
-        self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
-
-    async def generate_text(self, prompt: str, **kwargs: Any) -> str:
-        response = await self.client.chat.completions.create(
-            model=kwargs.get("model", "gpt-4o-mini"),
-            messages=[{"role": "user", "content": prompt}],
-            temperature=kwargs.get("temperature", 0.7),
-            response_format={"type": "json_object"} if "json" in prompt.lower() else None
-        )
-        return response.choices[0].message.content or ""
-
-    async def generate_titles(self, keyword: str, niche: str, count: int = 5) -> list[dict]:
-        prompt = (
-            f"Generate {count} Pinterest pin titles for the keyword '{keyword}' "
-            f"in the niche '{niche}'. Return as JSON array with 'title' and 'seo_score' keys."
-        )
-        # TODO: Parse structured JSON response
-        return []
-
-    async def generate_description(self, title: str, keyword: str, tone: str) -> str:
-        prompt = f"Write a Pinterest pin description for '{title}' about '{keyword}' in a {tone} tone."
-        return await self.generate_text(prompt)
 
 
 class AnthropicProvider(AIProvider):
@@ -114,9 +86,8 @@ class GeminiProvider(AIProvider):
 
 def get_ai_provider(provider: str | None = None) -> AIProvider:
     """Factory: return the configured AI provider."""
-    provider = provider or "openai"
+    provider = provider or "gemini"
     providers = {
-        "openai": OpenAIProvider,
         "claude": AnthropicProvider,
         "gemini": GeminiProvider,
     }

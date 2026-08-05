@@ -42,10 +42,8 @@ class Settings(BaseSettings):
     ]
 
     # AI API Keys
-    openai_api_key: str = ""
     anthropic_api_key: str = ""
     gemini_api_key: str = ""
-    openai_image_api_key: str = ""
 
     # Storage
     storage_backend: str = "local"

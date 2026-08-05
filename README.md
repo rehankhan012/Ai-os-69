@@ -12,7 +12,7 @@ apps/
   dashboard/    # Next.js 15 dashboard — 18 pages, unified navigation
 
 packages/
-  ai-core/          # AI provider abstraction (OpenAI, Claude, Gemini)
+  ai-core/          # AI provider abstraction (Claude, Gemini)
   trend-engine/     # Trend discovery and analysis
   seo-engine/       # Keyword research and SEO optimization
   content-engine/   # Content generation and optimization
@@ -161,6 +161,6 @@ docker compose up -d
 | Database | PostgreSQL 16 |
 | Cache | Redis 7 |
 | Auth | JWT |
-| AI | OpenAI GPT-4o, Anthropic Claude 3.5, Google Gemini Pro |
+| AI | Anthropic Claude 3.5, Google Gemini Pro |
 | Graphic Engine | SVG rendering, 17 templates, 9 background types, typography engine |
 | Container | Docker, Docker Compose |
