@@ -49,26 +49,32 @@ class MockProvider(AIProvider):
     """Mock AI integration for local testing without API keys."""
 
     async def generate_text(self, prompt: str, **kwargs: Any) -> str:
+        import re
+        topic_match = re.search(r"Topic:\s*(.*)", prompt)
+        topic = topic_match.group(1).strip() if topic_match else "Generated Article"
+        from app.utils import slugify
+        title = topic
+
         if "You MUST return your entire response as a structured JSON object matching this schema exactly" in prompt:
             return json.dumps({
-                "title": "Mock Article Title",
-                "slug": "mock-article-title",
-                "meta_title": "Mock Meta Title",
-                "meta_description": "Mock Meta Description",
-                "excerpt": "Mock summary",
-                "focus_keyword": "mock keyword",
-                "secondary_keywords": ["mock", "keywords"],
-                "tags": ["mock", "test"],
+                "title": title,
+                "slug": slugify(title),
+                "meta_title": f"{title} - Complete Guide",
+                "meta_description": f"Learn everything about {title} in this comprehensive guide.",
+                "excerpt": f"An in-depth look at {title}.",
+                "focus_keyword": f"{title} keyword",
+                "secondary_keywords": ["generated", "keywords"],
+                "tags": ["generated", "test"],
                 "reading_time": "5 min read",
                 "word_count": 500,
                 "seo_score": 98,
                 "quality_score": 96,
-                "featured_image_prompt": "A mock image prompt",
-                "pinterest_prompt": "Mock pin prompt",
-                "thumbnail_prompt": "Mock thumbnail",
-                "twitter_banner_prompt": "Mock banner",
-                "linkedin_cover_prompt": "Mock cover",
-                "faq": [{"question": "What is this?", "answer": "A mock article."}],
+                "featured_image_prompt": "An image prompt",
+                "pinterest_prompt": "A pin prompt",
+                "thumbnail_prompt": "A thumbnail prompt",
+                "twitter_banner_prompt": "A banner prompt",
+                "linkedin_cover_prompt": "A cover prompt",
+                "faq": [{"question": "What is this?", "answer": f"An article about {title}."}],
                 "schema": {"article": {}, "faq": {}, "breadcrumb": {}},
                 "affiliate_links_used": [],
                 "internal_links_used": [],
@@ -100,15 +106,15 @@ class MockProvider(AIProvider):
                 }
             })
         elif "You are an expert HTML Developer" in prompt:
-            return "<h1>Mock HTML</h1><p>This is a mock draft converted to HTML.</p>"
+            return f"<h1>{title}</h1><p>This is a generated draft about {title} converted to HTML.</p>"
         else:
-            return "This is a mock response from the AI."
+            return f"This is a generated response about {title} from the AI."
 
     async def generate_titles(self, keyword: str, niche: str, count: int = 5) -> list[dict]:
-        return [{"title": f"Mock Title {i}", "seo_score": 90} for i in range(count)]
+        return [{"title": f"{keyword} Title {i}", "seo_score": 90} for i in range(count)]
 
     async def generate_description(self, title: str, keyword: str, tone: str) -> str:
-        return f"Mock description for {title}"
+        return f"Generated description for {title}"
 
 
 def get_ai_provider(provider: str | None = None) -> AIProvider:

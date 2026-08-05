@@ -110,7 +110,19 @@ class WorkflowService:
             )
             
             head_title = generated_data.get("title", topic)
-            slug = generated_data.get("slug", unique_slugify(head_title, set()))
+            
+            from app.utils import slugify
+            base_slug = slugify(head_title)
+            slug = base_slug
+            counter = 2
+            
+            while True:
+                existing = await db.execute(select(Article.id).where(Article.slug == slug))
+                if existing.scalar_one_or_none() is None:
+                    break
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+                
             html_content = generated_data.get("html", "")
             excerpt = generated_data.get("excerpt", descriptions[0] if descriptions else "")
 
