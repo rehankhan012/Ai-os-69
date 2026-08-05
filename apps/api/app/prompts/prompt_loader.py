@@ -13,38 +13,13 @@ class PromptLoader:
             return ""
 
     @staticmethod
-    def build_article_prompt(topic: str, tone: str, affiliate_links: list[str], internal_links: list[dict], trusted_sources: list[str], additional_instructions: str) -> str:
-        system = PromptLoader.load("system")
-        writer = PromptLoader.load("article_writer").format(
-            topic=topic,
-            tone=tone,
-            additional_instructions=additional_instructions if additional_instructions else "None"
-        )
-        seo = PromptLoader.load("seo_rules")
-        
-        affiliate = ""
-        if affiliate_links:
-            affiliate = PromptLoader.load("affiliate_rules")
-            affiliate += "\n\nAffiliate Links:\n" + "\n".join(f"- {l}" for l in affiliate_links)
-            
-        internal = ""
-        if internal_links:
-            internal = "\n\nInternal Links:\n" + "\n".join(f"- {l['title']} : {l['url']}" for l in internal_links)
-            
-        trusted = ""
-        if trusted_sources:
-            trusted = "\n\nTrusted Sources:\n" + "\n".join(f"- {l}" for l in trusted_sources)
-            
-        html = PromptLoader.load("html_rules")
-        
-        parts = [
-            system,
-            writer,
-            seo,
-            internal,
-            trusted,
-            affiliate,
-            html
-        ]
-        
-        return "\n\n---\n\n".join(filter(None, parts))
+    def load_and_format(prompt_name: str, **kwargs) -> str:
+        template = PromptLoader.load(prompt_name)
+        # Using string format, but only replacing provided kwargs to avoid KeyError on missing ones like {draft} if not provided
+        # Actually it's safer to just return template.format(**kwargs) 
+        # But some templates have JSON schema brackets {{ }}, which format() handles correctly if escaped.
+        try:
+            return template.format(**kwargs)
+        except KeyError as e:
+            # If there's a missing key, fallback to raw template (or we could just let it fail so we know)
+            raise ValueError(f"Missing variable {e} for prompt {prompt_name}")
