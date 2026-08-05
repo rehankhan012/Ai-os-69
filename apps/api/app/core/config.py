@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     secret_key: str = "change-this-to-a-secure-random-key"
     environment: str = "development"
 
+    # AI Provider
+    groq_api_key: str = ""
+
     # Database
     # Defaults to a self-contained SQLite file so the API runs with zero external
     # services. Override with DATABASE_URL (e.g. via docker-compose) to use PostgreSQL.

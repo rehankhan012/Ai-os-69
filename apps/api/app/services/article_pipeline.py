@@ -33,6 +33,8 @@ class ArticlePipelineService:
                 logger.warning(f"Generation attempt {attempt + 1} failed: {e}")
                 if attempt == max_retries - 1:
                     raise Exception(f"Pipeline step failed after {max_retries} attempts: {e}")
+                import asyncio
+                await asyncio.sleep(5 * (attempt + 1))
 
     def _parse_json(self, response_text: str) -> dict:
         response_text = response_text.strip()

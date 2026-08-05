@@ -9,4 +9,5 @@ Instructions:
 - Avoid inline CSS. Use semantic markup only.
 - Ensure heading hierarchy is logical.
 - Format short paragraphs, use good spacing, and make it highly scannable.
+- PRESERVE EVERY WORD of the draft. Do not summarize or shorten the article.
 - Return ONLY the raw HTML string. Do not wrap in markdown backticks like ```html.

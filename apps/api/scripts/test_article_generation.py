@@ -8,13 +8,13 @@ load_dotenv()
 # Set up paths so we can import 'app'
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from app.services.ai_service import AIProvider, MockProvider
+from app.services.ai_service import get_ai_provider
 from app.services.article_pipeline import ArticlePipelineService
 
 async def main():
-    print("Testing AI Article Pipeline (V3.0) with Mock Provider...")
+    print("Testing AI Article Pipeline (V3.0) with Groq Provider...")
     
-    provider = MockProvider()
+    provider = get_ai_provider()
     pipeline = ArticlePipelineService(provider=provider)
     
     topic = "The Benefits of Yoga for Software Engineers"

@@ -1,16 +1,21 @@
 """
 AI Provider Abstraction Layer.
 
-Supports Claude, Gemini with a uniform interface.
+Exclusively uses Groq as the AI provider.
 """
 
+import json
+import logging
+import os
 from abc import ABC, abstractmethod
 from typing import Any
+from fastapi import HTTPException
 
-import json
+from groq import AsyncGroq
 from app.core.config import settings
 from app.prompts.prompt_loader import PromptLoader
 
+logger = logging.getLogger(__name__)
 
 class AIProvider(ABC):
     """Abstract base class for AI providers."""
@@ -41,90 +46,54 @@ class AIProvider(ABC):
             additional_instructions=additional_instructions
         )
 
+DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
+class GroqProvider(AIProvider):
+    """Groq AI Integration."""
 
-import json
-
-class MockProvider(AIProvider):
-    """Mock AI integration for local testing without API keys."""
+    def __init__(self):
+        api_key = os.getenv("GROQ_API_KEY") or settings.groq_api_key
+        if not api_key:
+            raise HTTPException(status_code=500, detail="GROQ_API_KEY missing.")
+        
+        self.client = AsyncGroq(api_key=api_key)
+        self.model = DEFAULT_MODEL
 
     async def generate_text(self, prompt: str, **kwargs: Any) -> str:
-        import re
-        topic_match = re.search(r"Topic:\s*(.*)", prompt)
-        topic = topic_match.group(1).strip() if topic_match else "Generated Article"
-        from app.utils import slugify
-        title = topic
-
-        if "You MUST return your entire response as a structured JSON object matching this schema exactly" in prompt:
-            return json.dumps({
-                "title": title,
-                "slug": slugify(title),
-                "meta_title": f"{title} - Complete Guide",
-                "meta_description": f"Learn everything about {title} in this comprehensive guide.",
-                "excerpt": f"An in-depth look at {title}.",
-                "focus_keyword": f"{title} keyword",
-                "secondary_keywords": ["generated", "keywords"],
-                "tags": ["generated", "test"],
-                "reading_time": "5 min read",
-                "word_count": 500,
-                "seo_score": 98,
-                "quality_score": 96,
-                "featured_image_prompt": "An image prompt",
-                "pinterest_prompt": "A pin prompt",
-                "thumbnail_prompt": "A thumbnail prompt",
-                "twitter_banner_prompt": "A banner prompt",
-                "linkedin_cover_prompt": "A cover prompt",
-                "faq": [{"question": "What is this?", "answer": f"An article about {title}."}],
-                "schema": {"article": {}, "faq": {}, "breadcrumb": {}},
-                "affiliate_links_used": [],
-                "internal_links_used": [],
-                "seo_audit": {
-                    "keyword_coverage": "Good",
-                    "heading_quality": "Good",
-                    "internal_links_count": 0,
-                    "affiliate_links_count": 0,
-                    "external_links_count": 0,
-                    "missing_opportunities": [],
-                    "improvement_suggestions": []
-                },
-                "quality_audit": {
-                    "helpfulness": 95,
-                    "trustworthiness": 95,
-                    "depth": 95,
-                    "originality": 95,
-                    "engagement": 95,
-                    "conversion_potential": 95,
-                    "human_likeness": 95
-                },
-                "content_suggestions": {
-                    "better_titles": [],
-                    "better_meta_descriptions": [],
-                    "additional_faqs": [],
-                    "suggested_related_articles": [],
-                    "suggested_internal_links": [],
-                    "content_expansion_ideas": []
-                }
-            })
-        elif "You are an expert HTML Developer" in prompt:
-            return f"<h1>{title}</h1><p>This is a generated draft about {title} converted to HTML.</p>"
-        else:
-            return f"This is a generated response about {title} from the AI."
+        try:
+            chat_completion = await self.client.chat.completions.create(
+                messages=[{"role": "user", "content": prompt}],
+                model=self.model,
+                temperature=kwargs.get("temperature", 0.7),
+            )
+            return chat_completion.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Groq API Error: {e}")
+            raise HTTPException(status_code=500, detail=f"AI Generation Failed: {str(e)}")
 
     async def generate_titles(self, keyword: str, niche: str, count: int = 5) -> list[dict]:
-        return [{"title": f"{keyword} Title {i}", "seo_score": 90} for i in range(count)]
+        prompt = f"Generate {count} highly engaging, SEO-optimized blog titles for the keyword '{keyword}' in the '{niche}' niche. Return ONLY a valid JSON array of objects, each containing 'title' and 'seo_score' (1-100). Do not include markdown blocks or any other text."
+        response = await self.generate_text(prompt, temperature=0.8)
+        try:
+            # Clean possible markdown block
+            response = response.strip()
+            if response.startswith("```json"):
+                response = response[7:]
+            if response.startswith("```"):
+                response = response[3:]
+            if response.endswith("```"):
+                response = response[:-3]
+            return json.loads(response.strip())
+        except json.JSONDecodeError:
+            logger.error(f"Failed to parse titles JSON: {response}")
+            return [{"title": f"{keyword} - The Ultimate Guide", "seo_score": 90}]
 
     async def generate_description(self, title: str, keyword: str, tone: str) -> str:
-        return f"Generated description for {title}"
+        prompt = f"Write a compelling 2-3 sentence meta description for an article titled '{title}' using the keyword '{keyword}'. The tone should be {tone}. Return ONLY the description without quotes or extra text."
+        response = await self.generate_text(prompt, temperature=0.7)
+        return response.strip(' "')
 
 
 def get_ai_provider(provider: str | None = None) -> AIProvider:
-    """Factory: return the configured AI provider."""
-    provider = provider or "mock"
-    providers = {
-        "mock": MockProvider,
-        "claude": MockProvider, # Fallback mapping if old string is used
-    }
-    cls = providers.get(provider.lower())
-    if not cls:
-        raise ValueError(f"Unknown AI provider: {provider}. Use: {list(providers.keys())}")
-    return cls()
+    """Factory: returns the Groq AI provider exclusively."""
+    return GroqProvider()

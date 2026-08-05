@@ -7,6 +7,8 @@ Research Context:
 
 Instructions:
 - Create logical, hierarchical headings (H2, H3, H4).
+- Structure the outline to contain between 10 to 20 detailed sections.
+- Ensure the outline includes an Introduction, Table of Contents, Examples section, Statistics section, FAQs, Conclusion, and Call-to-action.
 - Ensure a logical flow from introduction to conclusion.
 - Avoid any duplicate ideas or repetitive sections.
 - Ensure every important subtopic and user question from the research is addressed.
