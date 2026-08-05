@@ -65,31 +65,11 @@ class AnthropicProvider(AIProvider):
         return await self.generate_text(f"Write a Pinterest pin description for '{title}' about '{keyword}' in a {tone} tone.")
 
 
-class GeminiProvider(AIProvider):
-    """Google Gemini integration."""
-
-    def __init__(self):
-        import google.generativeai as genai
-        genai.configure(api_key=settings.gemini_api_key)
-        self.model = genai.GenerativeModel("gemini-1.5-pro")
-
-    async def generate_text(self, prompt: str, **kwargs: Any) -> str:
-        response = await self.model.generate_content_async(prompt)
-        return response.text
-
-    async def generate_titles(self, keyword: str, niche: str, count: int = 5) -> list[dict]:
-        return []
-
-    async def generate_description(self, title: str, keyword: str, tone: str) -> str:
-        return await self.generate_text(f"Write a Pinterest pin description for '{title}' about '{keyword}' in a {tone} tone.")
-
-
 def get_ai_provider(provider: str | None = None) -> AIProvider:
     """Factory: return the configured AI provider."""
-    provider = provider or "gemini"
+    provider = provider or "claude"
     providers = {
         "claude": AnthropicProvider,
-        "gemini": GeminiProvider,
     }
     cls = providers.get(provider.lower())
     if not cls:
